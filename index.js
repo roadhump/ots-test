@@ -1,3 +1,6 @@
+/**
+ * List of available denominations
+ */
 const denominations = [
   100,
   50,
@@ -8,10 +11,31 @@ const denominations = [
   1
 ]
 
+/**
+ * Append value to array count times
+ *
+ * @example
+ * // returns [1, 2, 'foo', 'foo']
+ * appendByCount([1, 2], 'foo', 2)
+ *
+ * @param {Array} arr
+ * @param {*} value
+ * @param {integer} count
+ * @returns {Array}
+ */
+const appendByCount = (arr, value, count) =>
+  arr.concat([...new Array(count)].map(() => value))
+
+/**
+ * Calculate list of optimal coins for incoming value
+ *
+ * @param {integer} value Amount to split
+ * @returns {integer[]} List of coins
+ */
 const getOptimalChangeFor = (value) => {
   let remainder = value
   let i = 0
-  let result = Object.create(null)
+  let result = []
 
   while (remainder) {
     const denomination = denominations[i]
@@ -22,7 +46,7 @@ const getOptimalChangeFor = (value) => {
     if (!count) continue
 
     remainder -= denomination * count
-    result[denomination] = count
+    result = appendByCount(result, denomination, count)
   }
 
   return result
@@ -38,6 +62,15 @@ const defaultInventory = {
   1: 23
 }
 
+/**
+ * Split value to coins limited by inventory
+ *
+ * Returns list of coins and new inventory without that coins
+ *
+ * @param {integer} value Value to split
+ * @param {Object} inventory Object with keys for denominations and values for count
+ * @returns {Object} Object with fields `result` - list of coins, `inventory` - new inventory
+ */
 const getChangeFor = (value, inventory = defaultInventory) => {
   const inventoryProcessed = Object.keys(inventory)
     .map((denomination) => ({
@@ -46,7 +79,7 @@ const getChangeFor = (value, inventory = defaultInventory) => {
     }))
     .sort((a, b) => a.denomination < b.denomination)
 
-  let result = Object.create(null)
+  let result = []
   let remainder = value
   let i = 0
 
@@ -62,7 +95,7 @@ const getChangeFor = (value, inventory = defaultInventory) => {
 
     if (!denominationCount) continue
 
-    result[denomination] = denominationCount
+    result = appendByCount(result, denomination, denominationCount)
     remainder -= denomination * denominationCount
     inventoryItem.count -= denominationCount
   }
